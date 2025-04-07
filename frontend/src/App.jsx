@@ -1,10 +1,10 @@
 import React from "react";
-import NavBar from "../src/components/NavBar";
+import SignUp from "../src/pages/Signup";
 
 const App = () => {
   return (
     <>
-      <NavBar></NavBar>
+      <SignUp></SignUp>
     </>
   );
 };
