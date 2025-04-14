@@ -8,7 +8,6 @@ const SignUp = () => {
   const [phone, setPhone] = useState("");
   const [verifyPassword, setVerifyPassword] = useState("");
   const [error, setError] = useState("");
-  const [role, setRole] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
