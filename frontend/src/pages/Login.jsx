@@ -1,20 +1,32 @@
 import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useStore } from "../store/useStore";
+import { toast } from "react-hot-toast";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const { currentUser } = useStore();
+
+  // Redirect if already logged in
+  if (currentUser) {
+    navigate('/');
+    return null;
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Email:", email);
-    console.log("Password:", password);
+    // For now, just show a message since we're using mock data
+    toast.success("Logged in successfully!");
+    navigate('/');
   };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50">
       <div className="bg-white p-8 rounded-lg shadow-lg w-96">
         <h2 className="text-2xl font-bold text-center text-indigo-600 mb-6">
-          Login
+          Login to FrogCrew
         </h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
@@ -62,9 +74,9 @@ const Login = () => {
 
           <div className="text-center text-sm">
             <span className="text-gray-500">Don't have an account? </span>
-            <a href="#" className="text-indigo-600 hover:text-indigo-700">
+            <Link to="/signup" className="text-indigo-600 hover:text-indigo-700">
               Sign Up
-            </a>
+            </Link>
           </div>
         </form>
       </div>

@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useStore } from "../store/useStore";
+import { toast } from "react-hot-toast";
 
 const SignUp = () => {
   const [firstName, setFirstName] = useState("");
@@ -8,6 +11,14 @@ const SignUp = () => {
   const [phone, setPhone] = useState("");
   const [verifyPassword, setVerifyPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const { currentUser } = useStore();
+
+  // Redirect if already logged in
+  if (currentUser) {
+    navigate('/');
+    return null;
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -16,14 +27,16 @@ const SignUp = () => {
       return;
     }
     setError("");
-    console.log("Account Created:", { firstName, lastName, email, password });
+    // For now, just show a message since we're using mock data
+    toast.success("Account created successfully!");
+    navigate('/login');
   };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50">
       <div className="bg-white p-8 rounded-lg shadow-lg w-96">
         <h2 className="text-2xl font-bold text-center text-indigo-600 mb-6">
-          Create Account
+          Create FrogCrew Account
         </h2>
         <form onSubmit={handleSubmit}>
           {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
@@ -144,9 +157,9 @@ const SignUp = () => {
 
           <div className="text-center text-sm">
             <span className="text-gray-500">Already have an account? </span>
-            <a href="#" className="text-indigo-600 hover:text-indigo-700">
+            <Link to="/login" className="text-indigo-600 hover:text-indigo-700">
               Log In
-            </a>
+            </Link>
           </div>
         </form>
       </div>
