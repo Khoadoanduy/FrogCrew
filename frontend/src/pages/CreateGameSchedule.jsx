@@ -1,42 +1,41 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Calendar, Clock, MapPin, AlertCircle } from 'lucide-react';
-import { useStore } from '../store/useStore';
-import { toast } from 'react-hot-toast';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useStore } from "../store/useStore";
+import { toast } from "react-hot-toast";
 
 function CreateGameSchedule() {
   const navigate = useNavigate();
   const { addGame } = useStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    sport: '',
-    gameDate: '',
-    gameStart: '',
-    venue: '',
-    opponent: '',
+    sport: "",
+    gameDate: "",
+    gameStart: "",
+    venue: "",
+    opponent: "",
     requiredPositions: [
-      'PRODUCER',
-      'DIRECTOR',
-      'TECHNICAL_DIR',
-      'AUDIO',
-      'CAMERA'
-    ]
+      "PRODUCER",
+      "DIRECTOR",
+      "TECHNICAL_DIR",
+      "AUDIO",
+      "CAMERA",
+    ],
   });
 
   const sportOptions = [
-    'Football',
-    'Basketball',
-    'Baseball',
-    'Soccer',
-    'Volleyball',
-    'Other'
+    "Football",
+    "Basketball",
+    "Baseball",
+    "Soccer",
+    "Volleyball",
+    "Other",
   ];
 
   const commonVenues = [
-    'Amon G. Carter Stadium',
-    'Schollmaier Arena',
-    'Lupton Stadium',
-    'Garvey-Rosenthal Soccer Stadium'
+    "Amon G. Carter Stadium",
+    "Schollmaier Arena",
+    "Lupton Stadium",
+    "Garvey-Rosenthal Soccer Stadium",
   ];
 
   const handleSubmit = async (e) => {
@@ -44,15 +43,20 @@ function CreateGameSchedule() {
     setIsSubmitting(true);
 
     try {
-      if (!formData.sport || !formData.gameDate || !formData.gameStart || !formData.venue) {
-        throw new Error('Please fill in all required fields');
+      if (
+        !formData.sport ||
+        !formData.gameDate ||
+        !formData.gameStart ||
+        !formData.venue
+      ) {
+        throw new Error("Please fill in all required fields");
       }
 
       await addGame(formData);
-      toast.success('Game schedule created successfully');
-      navigate('/schedule');
+      toast.success("Game schedule created successfully");
+      navigate("/schedule");
     } catch (error) {
-      toast.error(error.message || 'Failed to create game schedule');
+      toast.error(error.message || "Failed to create game schedule");
     } finally {
       setIsSubmitting(false);
     }
@@ -60,23 +64,28 @@ function CreateGameSchedule() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   return (
     <div className="space-y-6">
       <header className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">Create Game Schedule</h1>
+        <h1 className="text-3xl font-bold text-gray-900">
+          Create Game Schedule
+        </h1>
       </header>
 
       <div className="bg-white shadow rounded-lg">
         <form onSubmit={handleSubmit} className="space-y-6 p-6">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
-              <label htmlFor="sport" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="sport"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Sport Type *
               </label>
               <select
@@ -88,20 +97,23 @@ function CreateGameSchedule() {
                 required
               >
                 <option value="">Select a sport</option>
-                {sportOptions.map(sport => (
-                  <option key={sport} value={sport}>{sport}</option>
+                {sportOptions.map((sport) => (
+                  <option key={sport} value={sport}>
+                    {sport}
+                  </option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label htmlFor="gameDate" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="gameDate"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Game Date *
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Calendar className="h-5 w-5 text-gray-400" />
-                </div>
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"></div>
                 <input
                   type="date"
                   id="gameDate"
@@ -115,13 +127,14 @@ function CreateGameSchedule() {
             </div>
 
             <div>
-              <label htmlFor="gameStart" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="gameStart"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Game Time *
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Clock className="h-5 w-5 text-gray-400" />
-                </div>
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"></div>
                 <input
                   type="time"
                   id="gameStart"
@@ -135,14 +148,15 @@ function CreateGameSchedule() {
             </div>
 
             <div>
-              <label htmlFor="venue" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="venue"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Venue *
               </label>
               <div className="mt-1 space-y-2">
                 <div className="relative rounded-md shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <MapPin className="h-5 w-5 text-gray-400" />
-                  </div>
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"></div>
                   <input
                     type="text"
                     id="venue"
@@ -155,18 +169,20 @@ function CreateGameSchedule() {
                     list="venue-suggestions"
                   />
                   <datalist id="venue-suggestions">
-                    {commonVenues.map(venue => (
+                    {commonVenues.map((venue) => (
                       <option key={venue} value={venue} />
                     ))}
                   </datalist>
                 </div>
                 {commonVenues.length > 0 && (
                   <div className="flex flex-wrap gap-2">
-                    {commonVenues.map(venue => (
+                    {commonVenues.map((venue) => (
                       <button
                         key={venue}
                         type="button"
-                        onClick={() => setFormData(prev => ({ ...prev, venue }))}
+                        onClick={() =>
+                          setFormData((prev) => ({ ...prev, venue }))
+                        }
                         className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                       >
                         {venue}
@@ -178,7 +194,10 @@ function CreateGameSchedule() {
             </div>
 
             <div>
-              <label htmlFor="opponent" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="opponent"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Opponent
               </label>
               <input
@@ -196,7 +215,7 @@ function CreateGameSchedule() {
           <div className="flex items-center justify-end space-x-3">
             <button
               type="button"
-              onClick={() => navigate('/schedule')}
+              onClick={() => navigate("/schedule")}
               className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               Cancel
@@ -206,7 +225,7 @@ function CreateGameSchedule() {
               disabled={isSubmitting}
               className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
-              {isSubmitting ? 'Creating...' : 'Create Schedule'}
+              {isSubmitting ? "Creating..." : "Create Schedule"}
             </button>
           </div>
         </form>

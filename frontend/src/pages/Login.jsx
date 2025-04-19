@@ -11,7 +11,7 @@ const Login = () => {
 
   // Redirect if already logged in
   if (currentUser) {
-    navigate('/');
+    navigate("/");
     return null;
   }
 
@@ -19,7 +19,7 @@ const Login = () => {
     e.preventDefault();
     // For now, just show a message since we're using mock data
     toast.success("Logged in successfully!");
-    navigate('/');
+    navigate("/");
   };
 
   return (
@@ -74,7 +74,10 @@ const Login = () => {
 
           <div className="text-center text-sm">
             <span className="text-gray-500">Don't have an account? </span>
-            <Link to="/signup" className="text-indigo-600 hover:text-indigo-700">
+            <Link
+              to="/signup"
+              className="text-indigo-600 hover:text-indigo-700"
+            >
               Sign Up
             </Link>
           </div>

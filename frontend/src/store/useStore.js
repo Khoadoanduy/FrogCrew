@@ -1,97 +1,106 @@
-import { create } from 'zustand';
-import { toast } from 'react-hot-toast';
+import { create } from "zustand";
+import { toast } from "react-hot-toast";
 
-const mockData = {
-  crewMembers: [
-    {
-      userId: '1',
-      firstName: 'Michala',
-      lastName: 'Rogers',
-      email: 'michala.rogers@example.com',
-      phoneNumber: '1234567890',
-      role: 'ADMIN',
-      positions: ['DIRECTOR', 'PRODUCER', 'TECHNICAL_DIR'],
-      experience: 'senior'
-    },
-    {
-      userId: '2',
-      firstName: 'Jane',
-      lastName: 'Smith',
-      email: 'jane.smith@example.com',
-      phoneNumber: '0987654321',
-      role: 'CREW',
-      positions: ['CAMERA', 'UTILITY'],
-      experience: 'experienced'
-    },
-    {
-      userId: '3',
-      firstName: 'Bob',
-      lastName: 'Johnson',
-      email: 'bob.johnson@example.com',
-      phoneNumber: '5556667777',
-      role: 'CREW',
-      positions: ['AUDIO', 'VIDEO'],
-      experience: 'new'
-    }
-  ],
-  games: [
-    {
-      gameId: 1,
-      gameStart: "12:00",
-      gameDate: "2024-09-07",
-      venue: "Amon G. Carter Stadium",
-      opponent: "Texas Longhorns",
-      sport: "Football",
-      status: "PUBLISHED",
-      crewedMembers: [
-        {
-          crewedUserId: 1,
-          userId: "1",
-          gameId: 1,
-          Position: "DIRECTOR",
-          fullName: "Michala Rogers",
-          ReportTime: "10:00",
-          ReportLocation: "CONTROL ROOM"
-        }
-      ]
-    },
-    {
-      gameId: 2,
-      gameStart: "15:30",
-      gameDate: "2024-09-14",
-      venue: "Schollmaier Arena",
-      opponent: "UCF",
-      sport: "Basketball",
-      status: "DRAFT",
-      crewedMembers: []
-    }
-  ],
-  availability: [
-    {
-      userId: '1',
-      gameId: 1,
-      availability: 1,
-      comment: "Available all day"
-    },
-    {
-      userId: '2',
-      gameId: 1,
-      availability: 0,
-      comment: "Out of town"
-    }
-  ]
-};
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const useStore = create((set, get) => ({
-  crewMembers: mockData.crewMembers,
-  games: mockData.games,
-  availability: mockData.availability,
-  schedules: [],
-  currentUser: mockData.crewMembers[0], // Default to Michala (Admin)
+  crewMembers: [],
+  games: [],
+  availability: [],
+  currentUser: null,
+  invites: [],
+
+  // Initialize data
+  initializeData: async () => {
+    try {
+      const [crewMembersRes, gamesRes, availabilityRes, invitesRes] =
+        await Promise.all([
+          fetch(`${API_URL}/crewMembers`),
+          fetch(`${API_URL}/games`),
+          fetch(`${API_URL}/availability`),
+          fetch(`${API_URL}/invites`),
+        ]);
+
+      const crewMembers = await crewMembersRes.json();
+      const games = await gamesRes.json();
+      const availability = await availabilityRes.json();
+      const invites = await invitesRes.json();
+
+      set({
+        crewMembers,
+        games,
+        availability,
+        invites,
+        currentUser: crewMembers[0], // Default to first user (Michala - Admin)
+      });
+    } catch (error) {
+      console.error("Failed to initialize data:", error);
+      toast.error("Failed to load data");
+    }
+  },
+
+  // Invitation Management
+  createInvite: async (email) => {
+    try {
+      const token =
+        Math.random().toString(36).substring(2) + Date.now().toString(36);
+      const invite = {
+        id: Date.now().toString(),
+        email,
+        token,
+        used: false,
+        createdAt: new Date().toISOString(),
+      };
+
+      const response = await fetch(`${API_URL}/invites`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(invite),
+      });
+
+      const savedInvite = await response.json();
+      set((state) => ({ invites: [...state.invites, savedInvite] }));
+      return savedInvite;
+    } catch (error) {
+      toast.error("Failed to create invitation");
+      throw error;
+    }
+  },
+
+  validateInvite: async (token) => {
+    try {
+      const response = await fetch(
+        `${API_URL}/invites?token=${token}&used=false`
+      );
+      const invites = await response.json();
+      return invites.length > 0 ? invites[0] : null;
+    } catch (error) {
+      console.error("Failed to validate invite:", error);
+      return null;
+    }
+  },
+
+  markInviteUsed: async (inviteId) => {
+    try {
+      const response = await fetch(`${API_URL}/invites/${inviteId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ used: true }),
+      });
+      const updatedInvite = await response.json();
+      set((state) => ({
+        invites: state.invites.map((invite) =>
+          invite.id === inviteId ? updatedInvite : invite
+        ),
+      }));
+    } catch (error) {
+      console.error("Failed to mark invite as used:", error);
+    }
+  },
 
   // User Management
   setCurrentUser: (userId) => {
-    const user = mockData.crewMembers.find(m => m.userId === userId);
+    const user = get().crewMembers.find((m) => m.userId === userId);
     if (user) {
       set({ currentUser: user });
       toast.success(`Switched to ${user.firstName}'s view (${user.role})`);
@@ -99,132 +108,148 @@ export const useStore = create((set, get) => ({
   },
 
   // Crew Member Management
-  setCrewMembers: (members) => set({ crewMembers: members }),
-  addCrewMember: (member) =>
-    set((state) => ({ crewMembers: [...state.crewMembers, member] })),
+  addCrewMember: async (member) => {
+    try {
+      const response = await fetch(`${API_URL}/crewMembers`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(member),
+      });
+      const newMember = await response.json();
+      set((state) => ({ crewMembers: [...state.crewMembers, newMember] }));
+      return newMember;
+    } catch (error) {
+      toast.error("Failed to add crew member");
+      throw error;
+    }
+  },
+
   removeCrewMember: async (id) => {
     const { games } = get();
-    
-    const hasUpcomingGames = games.some(game => {
+
+    const hasUpcomingGames = games.some((game) => {
       const gameDate = new Date(game.gameDate);
       const today = new Date();
-      return gameDate > today && game.crewedMembers.some(member => member.userId === id);
+      return (
+        gameDate > today &&
+        game.crewedMembers.some((member) => member.userId === id)
+      );
     });
 
     if (hasUpcomingGames) {
-      toast.error('Cannot delete crew member with upcoming game assignments');
+      toast.error("Cannot delete crew member with upcoming game assignments");
       return false;
     }
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await fetch(`${API_URL}/crewMembers/${id}`, { method: "DELETE" });
       set((state) => ({
         crewMembers: state.crewMembers.filter((m) => m.userId !== id),
       }));
-      
-      toast.success('Crew member deleted successfully');
+      toast.success("Crew member deleted successfully");
       return true;
     } catch (error) {
-      toast.error('Failed to delete crew member');
+      toast.error("Failed to delete crew member");
       console.error(error);
       return false;
     }
   },
-  updateCrewMember: (id, member) =>
-    set((state) => ({
-      crewMembers: state.crewMembers.map((m) =>
-        m.userId === id ? { ...m, ...member } : m
-      ),
-    })),
 
   // Game Management
-  setGames: (games) => set({ games }),
   addGame: async (game) => {
     try {
       if (!game.sport || !game.gameDate || !game.gameStart || !game.venue) {
-        throw new Error('Missing required fields');
+        throw new Error("Missing required fields");
       }
-
-      await new Promise(resolve => setTimeout(resolve, 1000));
 
       const newGame = {
         ...game,
-        gameId: Math.max(...get().games.map(g => g.gameId)) + 1,
-        status: 'DRAFT',
-        crewedMembers: []
+        gameId: Math.max(...get().games.map((g) => g.gameId)) + 1,
+        status: "DRAFT",
+        crewedMembers: [],
       };
 
-      set((state) => ({ 
-        games: [...state.games, newGame]
-      }));
+      const response = await fetch(`${API_URL}/games`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newGame),
+      });
 
-      toast.success('Game added successfully');
-      return newGame;
+      const savedGame = await response.json();
+      set((state) => ({ games: [...state.games, savedGame] }));
+      toast.success("Game added successfully");
+      return savedGame;
     } catch (error) {
-      toast.error(error.message || 'Failed to add game');
+      toast.error(error.message || "Failed to add game");
       throw error;
     }
   },
+
   updateGame: async (id, game) => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch(`${API_URL}/games/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(game),
+      });
 
+      const updatedGame = await response.json();
       set((state) => ({
-        games: state.games.map((g) => (g.gameId === id ? { ...g, ...game } : g)),
+        games: state.games.map((g) => (g.gameId === id ? updatedGame : g)),
       }));
-
-      toast.success('Game updated successfully');
+      toast.success("Game updated successfully");
     } catch (error) {
-      toast.error('Failed to update game');
+      toast.error("Failed to update game");
       throw error;
     }
   },
+
   publishGame: async (id) => {
     try {
-      const game = get().games.find(g => g.gameId === id);
+      const game = get().games.find((g) => g.gameId === id);
       if (!game) {
-        throw new Error('Game not found');
+        throw new Error("Game not found");
       }
 
       if (!game.sport || !game.gameDate || !game.gameStart || !game.venue) {
-        throw new Error('Cannot publish game with missing required fields');
+        throw new Error("Cannot publish game with missing required fields");
       }
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch(`${API_URL}/games/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...game, status: "PUBLISHED" }),
+      });
 
+      const updatedGame = await response.json();
       set((state) => ({
-        games: state.games.map((g) => 
-          g.gameId === id ? { ...g, status: 'PUBLISHED' } : g
-        ),
+        games: state.games.map((g) => (g.gameId === id ? updatedGame : g)),
       }));
-
-      toast.success('Game published successfully');
+      toast.success("Game published successfully");
     } catch (error) {
-      toast.error(error.message || 'Failed to publish game');
+      toast.error(error.message || "Failed to publish game");
       throw error;
     }
   },
+
   deleteGame: async (id) => {
     try {
-      const game = get().games.find(g => g.gameId === id);
+      const game = get().games.find((g) => g.gameId === id);
       if (!game) {
-        throw new Error('Game not found');
+        throw new Error("Game not found");
       }
 
-      if (game.status === 'PUBLISHED') {
-        throw new Error('Cannot delete a published game');
+      if (game.status === "PUBLISHED") {
+        throw new Error("Cannot delete a published game");
       }
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
+      await fetch(`${API_URL}/games/${id}`, { method: "DELETE" });
       set((state) => ({
         games: state.games.filter((g) => g.gameId !== id),
       }));
-
-      toast.success('Game deleted successfully');
+      toast.success("Game deleted successfully");
     } catch (error) {
-      toast.error(error.message || 'Failed to delete game');
+      toast.error(error.message || "Failed to delete game");
       throw error;
     }
   },
@@ -232,17 +257,21 @@ export const useStore = create((set, get) => ({
   // Crew Assignment
   assignCrewMember: async (assignment) => {
     try {
-      const { gameId, userId, position, reportTime, reportLocation } = assignment;
-      
+      const { gameId, userId, position, reportTime, reportLocation } =
+        assignment;
+
       if (!gameId || !userId || !position) {
-        throw new Error('Missing required assignment details');
+        throw new Error("Missing required assignment details");
       }
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      const crewMember = get().crewMembers.find(m => m.userId === userId);
+      const crewMember = get().crewMembers.find((m) => m.userId === userId);
       if (!crewMember) {
-        throw new Error('Crew member not found');
+        throw new Error("Crew member not found");
+      }
+
+      const game = get().games.find((g) => g.gameId === gameId);
+      if (!game) {
+        throw new Error("Game not found");
       }
 
       const newCrewedMember = {
@@ -252,48 +281,28 @@ export const useStore = create((set, get) => ({
         Position: position,
         fullName: `${crewMember.firstName} ${crewMember.lastName}`,
         ReportTime: reportTime,
-        ReportLocation: reportLocation
+        ReportLocation: reportLocation,
       };
 
+      const updatedGame = {
+        ...game,
+        crewedMembers: [...game.crewedMembers, newCrewedMember],
+      };
+
+      const response = await fetch(`${API_URL}/games/${gameId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedGame),
+      });
+
+      const savedGame = await response.json();
       set((state) => ({
-        games: state.games.map((game) => {
-          if (game.gameId === gameId) {
-            return {
-              ...game,
-              crewedMembers: [...game.crewedMembers, newCrewedMember]
-            };
-          }
-          return game;
-        })
+        games: state.games.map((g) => (g.gameId === gameId ? savedGame : g)),
       }));
 
       return newCrewedMember;
     } catch (error) {
-      toast.error(error.message || 'Failed to assign crew member');
-      throw error;
-    }
-  },
-  removeCrewAssignment: async (gameId, userId) => {
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      set((state) => ({
-        games: state.games.map((game) => {
-          if (game.gameId === gameId) {
-            return {
-              ...game,
-              crewedMembers: game.crewedMembers.filter(
-                member => member.userId !== userId
-              )
-            };
-          }
-          return game;
-        })
-      }));
-
-      return true;
-    } catch (error) {
-      toast.error('Failed to remove crew assignment');
+      toast.error(error.message || "Failed to assign crew member");
       throw error;
     }
   },
@@ -301,9 +310,14 @@ export const useStore = create((set, get) => ({
   // Availability Management
   submitAvailability: async (gameId, isAvailable, comment = "") => {
     const { currentUser, availability } = get();
-    
+
+    if (!currentUser) {
+      toast.error("You must be logged in to submit availability");
+      return;
+    }
+
     const existingAvailability = availability.find(
-      a => a.userId === currentUser.userId && a.gameId === gameId
+      (a) => a.userId === currentUser.userId && a.gameId === gameId
     );
 
     if (existingAvailability) {
@@ -313,29 +327,41 @@ export const useStore = create((set, get) => ({
 
     try {
       const newAvailability = {
+        id: Date.now().toString(),
         userId: currentUser.userId,
         gameId,
         availability: isAvailable ? 1 : 0,
-        comment
+        comment,
       };
 
+      const response = await fetch(`${API_URL}/availability`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newAvailability),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to submit availability");
+      }
+
+      const savedAvailability = await response.json();
       set((state) => ({
-        availability: [...state.availability, newAvailability]
+        availability: [...state.availability, savedAvailability],
       }));
 
       toast.success("Availability submitted successfully");
     } catch (error) {
+      console.error("Error submitting availability:", error);
       toast.error("Failed to submit availability");
-      console.error(error);
     }
   },
+
   getGameAvailability: (gameId) => {
     const { currentUser, availability } = get();
-    return availability.find(
-      a => a.userId === currentUser.userId && a.gameId === gameId
-    );
+    return currentUser
+      ? availability.find(
+          (a) => a.userId === currentUser.userId && a.gameId === gameId
+        )
+      : null;
   },
-
-  // Other Management
-  setSchedules: (schedules) => set({ schedules })
 }));

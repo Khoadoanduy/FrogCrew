@@ -1,25 +1,32 @@
-import React, { useState } from 'react';
-import { format } from 'date-fns';
-import { Calendar, MapPin, Users, AlertCircle, Check, X, Plus, Edit } from 'lucide-react';
-import { useStore } from '../store/useStore';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { format } from "date-fns";
+
+import { useStore } from "../store/useStore";
+import { useNavigate } from "react-router-dom";
 
 function Schedule() {
   const navigate = useNavigate();
-  const { games, submitAvailability, getGameAvailability, currentUser, publishGame, deleteGame } = useStore();
-  const [view, setView] = useState('list');
-  const [dateFilter, setDateFilter] = useState('');
-  const [venueFilter, setVenueFilter] = useState('');
-  const [opponentFilter, setOpponentFilter] = useState('');
+  const {
+    games,
+    submitAvailability,
+    getGameAvailability,
+    currentUser,
+    publishGame,
+    deleteGame,
+  } = useStore();
+  const [view, setView] = useState("list");
+  const [dateFilter, setDateFilter] = useState("");
+  const [venueFilter, setVenueFilter] = useState("");
+  const [opponentFilter, setOpponentFilter] = useState("");
   const [submittingGameId, setSubmittingGameId] = useState(null);
-  const [comment, setComment] = useState('');
+  const [comment, setComment] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const venues = Array.from(new Set(games.map(game => game.venue)));
-  const opponents = Array.from(new Set(games.map(game => game.opponent)));
+  const venues = Array.from(new Set(games.map((game) => game.venue)));
+  const opponents = Array.from(new Set(games.map((game) => game.opponent)));
 
-  const filteredGames = games.filter(game => {
+  const filteredGames = games.filter((game) => {
     const matchesDate = !dateFilter || game.gameDate.includes(dateFilter);
     const matchesVenue = !venueFilter || game.venue === venueFilter;
     const matchesOpponent = !opponentFilter || game.opponent === opponentFilter;
@@ -29,14 +36,14 @@ function Schedule() {
   const handleAvailabilitySubmit = async (gameId, isAvailable) => {
     await submitAvailability(gameId, isAvailable, comment);
     setSubmittingGameId(null);
-    setComment('');
+    setComment("");
   };
 
   const handlePublish = async (gameId) => {
     try {
       await publishGame(gameId);
     } catch (error) {
-      console.error('Failed to publish game:', error);
+      console.error("Failed to publish game:", error);
     }
   };
 
@@ -46,7 +53,7 @@ function Schedule() {
       await deleteGame(gameId);
       setShowDeleteConfirm(null);
     } catch (error) {
-      console.error('Failed to delete game:', error);
+      console.error("Failed to delete game:", error);
     } finally {
       setIsDeleting(false);
     }
@@ -55,15 +62,17 @@ function Schedule() {
   if (games.length === 0) {
     return (
       <div className="text-center py-12">
-        <AlertCircle className="mx-auto h-12 w-12 text-gray-400" />
-        <h3 className="mt-2 text-lg font-medium text-gray-900">No upcoming games</h3>
-        <p className="mt-1 text-sm text-gray-500">No games are currently scheduled.</p>
-        {currentUser?.role === 'ADMIN' && (
+        <h3 className="mt-2 text-lg font-medium text-gray-900">
+          No upcoming games
+        </h3>
+        <p className="mt-1 text-sm text-gray-500">
+          No games are currently scheduled.
+        </p>
+        {currentUser?.role === "ADMIN" && (
           <button
-            onClick={() => navigate('/schedule/create')}
+            onClick={() => navigate("/schedule/create")}
             className="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
           >
-            <Plus className="h-5 w-5 mr-2" />
             Create Game Schedule
           </button>
         )}
@@ -76,31 +85,30 @@ function Schedule() {
       <header className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">Game Schedule</h1>
         <div className="flex items-center space-x-2">
-          {currentUser?.role === 'ADMIN' && (
+          {currentUser?.role === "ADMIN" && (
             <button
-              onClick={() => navigate('/schedule/create')}
+              onClick={() => navigate("/schedule/create")}
               className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
             >
-              <Plus className="h-5 w-5 mr-2 inline" />
               Add New Game
             </button>
           )}
           <button
-            onClick={() => setView('list')}
+            onClick={() => setView("list")}
             className={`px-4 py-2 rounded-md ${
-              view === 'list'
-                ? 'bg-indigo-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-50'
+              view === "list"
+                ? "bg-indigo-600 text-white"
+                : "bg-white text-gray-700 hover:bg-gray-50"
             }`}
           >
             List View
           </button>
           <button
-            onClick={() => setView('calendar')}
+            onClick={() => setView("calendar")}
             className={`px-4 py-2 rounded-md ${
-              view === 'calendar'
-                ? 'bg-indigo-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-50'
+              view === "calendar"
+                ? "bg-indigo-600 text-white"
+                : "bg-white text-gray-700 hover:bg-gray-50"
             }`}
           >
             Calendar View
@@ -112,7 +120,10 @@ function Schedule() {
         <div className="p-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 mb-6">
             <div>
-              <label htmlFor="date" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="date"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Date
               </label>
               <input
@@ -124,7 +135,10 @@ function Schedule() {
               />
             </div>
             <div>
-              <label htmlFor="venue" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="venue"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Venue
               </label>
               <select
@@ -142,7 +156,10 @@ function Schedule() {
               </select>
             </div>
             <div>
-              <label htmlFor="opponent" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="opponent"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Opponent
               </label>
               <select
@@ -161,7 +178,7 @@ function Schedule() {
             </div>
           </div>
 
-          {view === 'list' ? (
+          {view === "list" ? (
             <div className="flow-root">
               <ul className="-my-5 divide-y divide-gray-200">
                 {filteredGames.map((game) => {
@@ -171,80 +188,96 @@ function Schedule() {
                   return (
                     <li key={game.gameId} className="py-5">
                       <div className="flex items-center space-x-4">
-                        <div className="flex-shrink-0">
-                          <Calendar className="h-6 w-6 text-gray-400" />
-                        </div>
+                        <div className="flex-shrink-0"></div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
                             <div>
                               <p className="text-sm font-medium text-gray-900 truncate">
                                 vs {game.opponent}
                               </p>
-                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                game.status === 'PUBLISHED' 
-                                  ? 'bg-green-100 text-green-800'
-                                  : 'bg-yellow-100 text-yellow-800'
-                              }`}>
+                              <span
+                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                  game.status === "PUBLISHED"
+                                    ? "bg-green-100 text-green-800"
+                                    : "bg-yellow-100 text-yellow-800"
+                                }`}
+                              >
                                 {game.status}
                               </span>
                             </div>
-                            {currentUser?.role === 'ADMIN' && game.status !== 'PUBLISHED' && (
-                              <div className="flex items-center space-x-2">
-                                <button
-                                  onClick={() => handlePublish(game.gameId)}
-                                  className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-green-600 hover:bg-green-700"
-                                >
-                                  Publish
-                                </button>
-                                <button
-                                  onClick={() => navigate(`/schedule/edit/${game.gameId}`)}
-                                  className="inline-flex items-center px-2 py-1 border border-gray-300 text-xs font-medium rounded shadow-sm text-gray-700 bg-white hover:bg-gray-50"
-                                >
-                                  <Edit className="h-4 w-4 mr-1" />
-                                  Edit
-                                </button>
-                                <button
-                                  onClick={() => setShowDeleteConfirm(game.gameId)}
-                                  className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700"
-                                >
-                                  Delete
-                                </button>
-                              </div>
-                            )}
+                            {currentUser?.role === "ADMIN" &&
+                              game.status !== "PUBLISHED" && (
+                                <div className="flex items-center space-x-2">
+                                  <button
+                                    onClick={() => handlePublish(game.gameId)}
+                                    className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-green-600 hover:bg-green-700"
+                                  >
+                                    Publish
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      navigate(`/schedule/edit/${game.gameId}`)
+                                    }
+                                    className="inline-flex items-center px-2 py-1 border border-gray-300 text-xs font-medium rounded shadow-sm text-gray-700 bg-white hover:bg-gray-50"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      setShowDeleteConfirm(game.gameId)
+                                    }
+                                    className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700"
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              )}
                           </div>
                           <div className="mt-2 flex items-center text-sm text-gray-500">
-                            <MapPin className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
                             {game.venue}
                           </div>
                           <p className="mt-1 text-sm text-gray-500">
-                            {format(new Date(game.gameDate), 'MMMM dd, yyyy')} at {game.gameStart}
+                            {format(new Date(game.gameDate), "MMMM dd, yyyy")}{" "}
+                            at {game.gameStart}
                           </p>
                         </div>
                         <div className="flex items-center space-x-2">
-                          {currentUser?.role !== 'ADMIN' && (
-                            availability ? (
-                              <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${
-                                availability.availability
-                                  ? 'bg-green-100 text-green-800'
-                                  : 'bg-red-100 text-red-800'
-                              }`}>
-                                {availability.availability ? 'Available' : 'Unavailable'}
+                          {currentUser?.role !== "ADMIN" &&
+                            (availability ? (
+                              <div
+                                className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${
+                                  availability.availability
+                                    ? "bg-green-100 text-green-800"
+                                    : "bg-red-100 text-red-800"
+                                }`}
+                              >
+                                {availability.availability
+                                  ? "Available"
+                                  : "Unavailable"}
                               </div>
                             ) : isSubmitting ? (
                               <div className="space-y-2">
                                 <div className="flex items-center space-x-2">
                                   <button
-                                    onClick={() => handleAvailabilitySubmit(game.gameId, true)}
+                                    onClick={() =>
+                                      handleAvailabilitySubmit(
+                                        game.gameId,
+                                        true
+                                      )
+                                    }
                                     className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-full shadow-sm text-white bg-green-600 hover:bg-green-700"
                                   >
-                                    <Check className="h-4 w-4 mr-1" />
                                     Available
                                   </button>
                                   <button
-                                    onClick={() => handleAvailabilitySubmit(game.gameId, false)}
+                                    onClick={() =>
+                                      handleAvailabilitySubmit(
+                                        game.gameId,
+                                        false
+                                      )
+                                    }
                                     className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-full shadow-sm text-white bg-red-600 hover:bg-red-700"
                                   >
-                                    <X className="h-4 w-4 mr-1" />
                                     Unavailable
                                   </button>
                                 </div>
@@ -263,13 +296,16 @@ function Schedule() {
                               >
                                 Submit Availability
                               </button>
-                            )
-                          )}
+                            ))}
                           <button
-                            onClick={() => navigate(`/crew/game/${game.gameId}`)}
+                            onClick={() =>
+                              navigate(`/crew/game/${game.gameId}`)
+                            }
                             className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                           >
-                            {currentUser?.role === 'ADMIN' ? 'Manage Crew' : 'View Crew List'}
+                            {currentUser?.role === "ADMIN"
+                              ? "Manage Crew"
+                              : "View Crew List"}
                           </button>
                         </div>
                       </div>
@@ -280,7 +316,7 @@ function Schedule() {
             </div>
           ) : (
             <div className="grid grid-cols-7 gap-px bg-gray-200 rounded-lg overflow-hidden">
-              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+              {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
                 <div
                   key={day}
                   className="bg-gray-50 py-2 text-center text-sm font-semibold text-gray-700"
@@ -291,18 +327,15 @@ function Schedule() {
               {Array.from({ length: 35 }).map((_, i) => {
                 const currentDate = new Date(2024, 8, i + 1);
                 const gamesOnDay = filteredGames.filter(
-                  game => game.gameDate === format(currentDate, 'yyyy-MM-dd')
+                  (game) => game.gameDate === format(currentDate, "yyyy-MM-dd")
                 );
 
                 return (
-                  <div
-                    key={i}
-                    className="bg-white min-h-[100px] p-2"
-                  >
+                  <div key={i} className="bg-white min-h-[100px] p-2">
                     <div className="font-medium text-sm text-gray-500">
                       {i + 1}
                     </div>
-                    {gamesOnDay.map(game => (
+                    {gamesOnDay.map((game) => (
                       <div
                         key={game.gameId}
                         className="mt-1 p-1 text-xs bg-indigo-50 text-indigo-700 rounded cursor-pointer hover:bg-indigo-100"
@@ -322,9 +355,12 @@ function Schedule() {
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
           <div className="bg-white rounded-lg p-6 max-w-sm mx-4">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Confirm Delete</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Confirm Delete
+            </h3>
             <p className="text-sm text-gray-500 mb-4">
-              Are you sure you want to delete this game? This action cannot be undone.
+              Are you sure you want to delete this game? This action cannot be
+              undone.
             </p>
             <div className="flex justify-end space-x-3">
               <button
@@ -339,7 +375,7 @@ function Schedule() {
                 className="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:opacity-50"
                 disabled={isDeleting}
               >
-                {isDeleting ? 'Deleting...' : 'Delete Game'}
+                {isDeleting ? "Deleting..." : "Delete Game"}
               </button>
             </div>
           </div>

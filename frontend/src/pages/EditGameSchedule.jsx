@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Calendar, Clock, MapPin } from 'lucide-react';
-import { useStore } from '../store/useStore';
-import { toast } from 'react-hot-toast';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useStore } from "../store/useStore";
+import { toast } from "react-hot-toast";
 
 function EditGameSchedule() {
   const { gameId } = useParams();
@@ -10,57 +9,57 @@ function EditGameSchedule() {
   const { games, updateGame } = useStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    sport: '',
-    gameDate: '',
-    gameStart: '',
-    venue: '',
-    opponent: '',
+    sport: "",
+    gameDate: "",
+    gameStart: "",
+    venue: "",
+    opponent: "",
     requiredPositions: [
-      'PRODUCER',
-      'DIRECTOR',
-      'TECHNICAL_DIR',
-      'AUDIO',
-      'CAMERA'
-    ]
+      "PRODUCER",
+      "DIRECTOR",
+      "TECHNICAL_DIR",
+      "AUDIO",
+      "CAMERA",
+    ],
   });
 
   useEffect(() => {
-    const game = games.find(g => g.gameId === parseInt(gameId));
+    const game = games.find((g) => g.gameId === parseInt(gameId));
     if (!game) {
-      toast.error('Game not found');
-      navigate('/schedule');
+      toast.error("Game not found");
+      navigate("/schedule");
       return;
     }
     setFormData({
-      sport: game.sport || '',
-      gameDate: game.gameDate || '',
-      gameStart: game.gameStart || '',
-      venue: game.venue || '',
-      opponent: game.opponent || '',
+      sport: game.sport || "",
+      gameDate: game.gameDate || "",
+      gameStart: game.gameStart || "",
+      venue: game.venue || "",
+      opponent: game.opponent || "",
       requiredPositions: game.requiredPositions || [
-        'PRODUCER',
-        'DIRECTOR',
-        'TECHNICAL_DIR',
-        'AUDIO',
-        'CAMERA'
-      ]
+        "PRODUCER",
+        "DIRECTOR",
+        "TECHNICAL_DIR",
+        "AUDIO",
+        "CAMERA",
+      ],
     });
   }, [gameId, games, navigate]);
 
   const sportOptions = [
-    'Football',
-    'Basketball',
-    'Baseball',
-    'Soccer',
-    'Volleyball',
-    'Other'
+    "Football",
+    "Basketball",
+    "Baseball",
+    "Soccer",
+    "Volleyball",
+    "Other",
   ];
 
   const commonVenues = [
-    'Amon G. Carter Stadium',
-    'Schollmaier Arena',
-    'Lupton Stadium',
-    'Garvey-Rosenthal Soccer Stadium'
+    "Amon G. Carter Stadium",
+    "Schollmaier Arena",
+    "Lupton Stadium",
+    "Garvey-Rosenthal Soccer Stadium",
   ];
 
   const handleSubmit = async (e) => {
@@ -68,15 +67,20 @@ function EditGameSchedule() {
     setIsSubmitting(true);
 
     try {
-      if (!formData.sport || !formData.gameDate || !formData.gameStart || !formData.venue) {
-        throw new Error('Please fill in all required fields');
+      if (
+        !formData.sport ||
+        !formData.gameDate ||
+        !formData.gameStart ||
+        !formData.venue
+      ) {
+        throw new Error("Please fill in all required fields");
       }
 
       await updateGame(parseInt(gameId), formData);
-      toast.success('Game schedule updated successfully');
-      navigate('/schedule');
+      toast.success("Game schedule updated successfully");
+      navigate("/schedule");
     } catch (error) {
-      toast.error(error.message || 'Failed to update game schedule');
+      toast.error(error.message || "Failed to update game schedule");
     } finally {
       setIsSubmitting(false);
     }
@@ -84,9 +88,9 @@ function EditGameSchedule() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -100,7 +104,10 @@ function EditGameSchedule() {
         <form onSubmit={handleSubmit} className="space-y-6 p-6">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
-              <label htmlFor="sport" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="sport"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Sport Type *
               </label>
               <select
@@ -112,20 +119,23 @@ function EditGameSchedule() {
                 required
               >
                 <option value="">Select a sport</option>
-                {sportOptions.map(sport => (
-                  <option key={sport} value={sport}>{sport}</option>
+                {sportOptions.map((sport) => (
+                  <option key={sport} value={sport}>
+                    {sport}
+                  </option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label htmlFor="gameDate" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="gameDate"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Game Date *
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Calendar className="h-5 w-5 text-gray-400" />
-                </div>
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"></div>
                 <input
                   type="date"
                   id="gameDate"
@@ -139,13 +149,14 @@ function EditGameSchedule() {
             </div>
 
             <div>
-              <label htmlFor="gameStart" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="gameStart"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Game Time *
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Clock className="h-5 w-5 text-gray-400" />
-                </div>
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"></div>
                 <input
                   type="time"
                   id="gameStart"
@@ -159,14 +170,15 @@ function EditGameSchedule() {
             </div>
 
             <div>
-              <label htmlFor="venue" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="venue"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Venue *
               </label>
               <div className="mt-1 space-y-2">
                 <div className="relative rounded-md shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <MapPin className="h-5 w-5 text-gray-400" />
-                  </div>
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"></div>
                   <input
                     type="text"
                     id="venue"
@@ -179,18 +191,20 @@ function EditGameSchedule() {
                     list="venue-suggestions"
                   />
                   <datalist id="venue-suggestions">
-                    {commonVenues.map(venue => (
+                    {commonVenues.map((venue) => (
                       <option key={venue} value={venue} />
                     ))}
                   </datalist>
                 </div>
                 {commonVenues.length > 0 && (
                   <div className="flex flex-wrap gap-2">
-                    {commonVenues.map(venue => (
+                    {commonVenues.map((venue) => (
                       <button
                         key={venue}
                         type="button"
-                        onClick={() => setFormData(prev => ({ ...prev, venue }))}
+                        onClick={() =>
+                          setFormData((prev) => ({ ...prev, venue }))
+                        }
                         className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                       >
                         {venue}
@@ -202,7 +216,10 @@ function EditGameSchedule() {
             </div>
 
             <div>
-              <label htmlFor="opponent" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="opponent"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Opponent
               </label>
               <input
@@ -220,7 +237,7 @@ function EditGameSchedule() {
           <div className="flex items-center justify-end space-x-3">
             <button
               type="button"
-              onClick={() => navigate('/schedule')}
+              onClick={() => navigate("/schedule")}
               className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               Cancel
@@ -230,7 +247,7 @@ function EditGameSchedule() {
               disabled={isSubmitting}
               className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
-              {isSubmitting ? 'Updating...' : 'Update Schedule'}
+              {isSubmitting ? "Updating..." : "Update Schedule"}
             </button>
           </div>
         </form>

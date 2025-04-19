@@ -16,7 +16,7 @@ const SignUp = () => {
 
   // Redirect if already logged in
   if (currentUser) {
-    navigate('/');
+    navigate("/");
     return null;
   }
 
@@ -29,7 +29,7 @@ const SignUp = () => {
     setError("");
     // For now, just show a message since we're using mock data
     toast.success("Account created successfully!");
-    navigate('/login');
+    navigate("/login");
   };
 
   return (
