@@ -1,0 +1,401 @@
+{
+  "users": [
+    {
+      "userId": 1,
+      "email": "a@g.com",
+      "password": "admin123",
+      "role": "ADMIN"
+    },
+    {
+      "userId": 2,
+      "email": "jane.smith@example.com",
+      "password": "crew123",
+      "role": "CREW_MEMBER"
+    },
+    {
+      "userId": 3,
+      "email": "mike.j@example.com",
+      "password": "crew123",
+      "role": "CREW_MEMBER"
+    },
+    {
+      "userId": 4,
+      "email": "sarah.w@example.com",
+      "password": "crew123",
+      "role": "CREW_MEMBER"
+    },
+    {
+      "userId": 5,
+      "email": "tom.wilson@example.com",
+      "password": "crew123",
+      "role": "CREW_MEMBER"
+    },
+    {
+      "userId": 6,
+      "email": "emily.brown@example.com",
+      "password": "crew123",
+      "role": "CREW_MEMBER"
+    }
+  ],
+  "crewmember": [
+    {
+      "userId": 1,
+      "firstName": "John",
+      "lastName": "Doe",
+      "email": "john.doe@example.com",
+      "phoneNumber": "123-456-7890",
+      "role": "ADMIN",
+      "positions": [
+        "Director",
+        "Producer"
+      ]
+    },
+    {
+      "userId": 2,
+      "firstName": "Jane",
+      "lastName": "Smith",
+      "email": "jane.smith@example.com",
+      "phoneNumber": "234-567-8901",
+      "role": "CREW_MEMBER",
+      "positions": [
+        "Camera",
+        "Video"
+      ]
+    },
+    {
+      "userId": 3,
+      "firstName": "Mike",
+      "lastName": "Johnson",
+      "email": "mike.j@example.com",
+      "phoneNumber": "345-678-9012",
+      "role": "CREW_MEMBER",
+      "positions": [
+        "Audio",
+        "Technical Dir"
+      ]
+    },
+    {
+      "userId": 4,
+      "firstName": "Sarah",
+      "lastName": "Williams",
+      "email": "sarah.w@example.com",
+      "phoneNumber": "456-789-0123",
+      "role": "CREW_MEMBER",
+      "positions": [
+        "Graphics",
+        "Replay EVS"
+      ]
+    },
+    {
+      "userId": 5,
+      "firstName": "Tom",
+      "lastName": "Wilson",
+      "email": "tom.wilson@example.com",
+      "phoneNumber": "567-890-1234",
+      "role": "CREW_MEMBER",
+      "positions": [
+        "Camera",
+        "Technical Dir",
+        "Video"
+      ]
+    },
+    {
+      "userId": 6,
+      "firstName": "Emily",
+      "lastName": "Brown",
+      "email": "emily.brown@example.com",
+      "phoneNumber": "678-901-2345",
+      "role": "CREW_MEMBER",
+      "positions": [
+        "Graphics",
+        "Replay EVS",
+        "Technical Dir"
+      ]
+    }
+  ],
+  "gameSchedule": {
+    "games": [
+      {
+        "gameId": 1,
+        "scheduleId": 1,
+        "gameDate": "2024-09-07",
+        "gameStart": "12:00",
+        "venue": "Carter",
+        "opponent": "LIU",
+        "isFinalized": true,
+        "crewedMembers": [
+          {
+            "crewedUserId": 101,
+            "userId": 2,
+            "gameId": 1,
+            "Position": "Camera",
+            "fullName": "Jane Smith",
+            "ReportTime": "10:00",
+            "ReportLocation": "CONTROL ROOM"
+          },
+          {
+            "crewedUserId": 102,
+            "userId": 4,
+            "gameId": 1,
+            "Position": "Graphics",
+            "fullName": "Sarah Williams",
+            "ReportTime": "09:30",
+            "ReportLocation": "CONTROL ROOM"
+          }
+        ]
+      },
+      {
+        "gameId": 2,
+        "scheduleId": 1,
+        "gameDate": "2024-09-14",
+        "gameStart": "15:30",
+        "venue": "Stadium A",
+        "opponent": "Team Red",
+        "isFinalized": false,
+        "crewedMembers": []
+      },
+      {
+        "gameId": 3,
+        "scheduleId": 1,
+        "gameDate": "2024-09-21",
+        "gameStart": "18:00",
+        "venue": "Stadium B",
+        "opponent": "Team Blue",
+        "isFinalized": false,
+        "crewedMembers": []
+      },
+      {
+        "gameId": 4,
+        "scheduleId": 2,
+        "gameDate": "2024-09-28",
+        "gameStart": "14:00",
+        "venue": "Stadium C",
+        "opponent": "Team Green",
+        "isFinalized": false,
+        "crewedMembers": []
+      }
+    ]
+  },
+  "crewlist": {
+    "1": {
+      "gameId": 1,
+      "gameDate": "2024-09-07",
+      "gameStart": "12:00",
+      "venue": "Carter",
+      "opponent": "LIU",
+      "crewedMembers": [
+        {
+          "crewedUserId": 101,
+          "userId": 2,
+          "Position": "Camera",
+          "fullName": "Jane Smith",
+          "ReportTime": "10:00",
+          "ReportLocation": "CONTROL ROOM"
+        },
+        {
+          "crewedUserId": 102,
+          "userId": 4,
+          "Position": "Graphics",
+          "fullName": "Sarah Williams",
+          "ReportTime": "09:30",
+          "ReportLocation": "CONTROL ROOM"
+        }
+      ]
+    },
+    "2": {
+      "gameId": 2,
+      "gameDate": "2024-09-14",
+      "gameStart": "15:30",
+      "venue": "Stadium A",
+      "opponent": "Team Red",
+      "crewedMembers": []
+    },
+    "3": {
+      "gameId": 3,
+      "gameDate": "2024-09-21",
+      "gameStart": "18:00",
+      "venue": "Stadium B",
+      "opponent": "Team Blue",
+      "crewedMembers": []
+    },
+    "4": {
+      "gameId": 4,
+      "gameDate": "2024-09-28",
+      "gameStart": "14:00",
+      "venue": "Stadium C",
+      "opponent": "Team Green",
+      "crewedMembers": []
+    }
+  },
+  "availability": [
+    {
+      "userId": 2,
+      "gameId": 2,
+      "availability": 1,
+      "comment": "Available all day"
+    },
+    {
+      "userId": 3,
+      "gameId": 2,
+      "availability": 1,
+      "comment": "Can work any position needed"
+    },
+    {
+      "userId": 4,
+      "gameId": 2,
+      "availability": 0,
+      "comment": "Out of town"
+    },
+    {
+      "userId": 5,
+      "gameId": 2,
+      "availability": 1,
+      "comment": "Preferred position: Camera"
+    },
+    {
+      "userId": 6,
+      "gameId": 2,
+      "availability": 1,
+      "comment": "Available after 12pm"
+    }
+  ],
+  "invitations": [],
+  "CrewedUser": {
+    "1": {
+      "Camera": [
+        {
+          "userId": 2,
+          "fullName": "Jane Smith"
+        }
+      ],
+      "Graphics": [
+        {
+          "userId": 4,
+          "fullName": "Sarah Williams"
+        }
+      ]
+    },
+    "2": {
+      "Camera": [
+        {
+          "userId": 2,
+          "fullName": "Jane Smith"
+        },
+        {
+          "userId": 5,
+          "fullName": "Tom Wilson"
+        }
+      ],
+      "Video": [
+        {
+          "userId": 2,
+          "fullName": "Jane Smith"
+        },
+        {
+          "userId": 5,
+          "fullName": "Tom Wilson"
+        }
+      ],
+      "Technical Dir": [
+        {
+          "userId": 3,
+          "fullName": "Mike Johnson"
+        },
+        {
+          "userId": 5,
+          "fullName": "Tom Wilson"
+        },
+        {
+          "userId": 6,
+          "fullName": "Emily Brown"
+        }
+      ],
+      "Graphics": [
+        {
+          "userId": 4,
+          "fullName": "Sarah Williams"
+        },
+        {
+          "userId": 6,
+          "fullName": "Emily Brown"
+        }
+      ],
+      "Audio": [
+        {
+          "userId": 3,
+          "fullName": "Mike Johnson"
+        }
+      ],
+      "Replay EVS": [
+        {
+          "userId": 4,
+          "fullName": "Sarah Williams"
+        },
+        {
+          "userId": 6,
+          "fullName": "Emily Brown"
+        }
+      ]
+    }
+  },
+  "schedules": [
+    {
+      "id": 1,
+      "sport": "Football",
+      "season": "2024-2025",
+      "games": [
+        {
+          "gameId": 1,
+          "gameDate": "2024-09-07",
+          "gameStart": "12:00",
+          "venue": "Carter",
+          "opponent": "LIU",
+          "isFinalized": true
+        },
+        {
+          "gameId": 2,
+          "gameDate": "2024-09-14",
+          "gameStart": "15:30",
+          "venue": "Stadium A",
+          "opponent": "Team Red",
+          "isFinalized": false
+        },
+        {
+          "gameId": 3,
+          "gameDate": "2024-09-21",
+          "gameStart": "18:00",
+          "venue": "Stadium B",
+          "opponent": "Team Blue",
+          "isFinalized": false
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "sport": "Basketball",
+      "season": "2024-2025",
+      "games": [
+        {
+          "gameId": 4,
+          "gameDate": "2024-09-28",
+          "gameStart": "14:00",
+          "venue": "Stadium C",
+          "opponent": "Team Green",
+          "isFinalized": false
+        }
+      ]
+    }
+  ],
+  "currentUser": {
+    "userId": 1,
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john.doe@example.com",
+    "phoneNumber": "123-456-7890",
+    "role": "ADMIN",
+    "positions": [
+      "Director",
+      "Producer"
+    ]
+  }
+}
