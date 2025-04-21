@@ -85,8 +85,6 @@ const handleSubmit = async () => {
       return;
     }
 
-    showNotificationMessage("Sending POST request to /availability...");
-
     const response = await submitAvailability(formData.value);
 
     if (response.flag) {

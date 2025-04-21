@@ -1,16 +1,16 @@
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import crewData from '../../db.json';
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import crewData from "../../db.json";
 
 const router = useRouter();
-const emails = ref(['']);
-const error = ref('');
-const success = ref('');
+const emails = ref([""]);
+const error = ref("");
+const success = ref("");
 const loading = ref(false);
 
 const addEmailField = () => {
-  emails.value.push('');
+  emails.value.push("");
 };
 
 const removeEmailField = (index) => {
@@ -23,28 +23,28 @@ const validateEmail = (email) => {
 
 const handleSubmit = async () => {
   try {
-    error.value = '';
-    success.value = '';
+    error.value = "";
+    success.value = "";
     loading.value = true;
 
     // Validate emails
-    const validEmails = emails.value.filter(email => email.trim() !== '');
-    const invalidEmails = validEmails.filter(email => !validateEmail(email));
+    const validEmails = emails.value.filter((email) => email.trim() !== "");
+    const invalidEmails = validEmails.filter((email) => !validateEmail(email));
 
     if (invalidEmails.length > 0) {
-      error.value = 'Please enter valid email addresses';
+      error.value = "Please enter valid email addresses";
       return;
     }
 
     if (validEmails.length === 0) {
-      error.value = 'Please enter at least one email address';
+      error.value = "Please enter at least one email address";
       return;
     }
 
-    const response = await fetch('/invite', {
-      method: 'POST',
+    const response = await fetch("/invite", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ emails: validEmails }),
     });
@@ -52,13 +52,13 @@ const handleSubmit = async () => {
     const result = await response.json();
 
     if (result.flag) {
-      success.value = 'Invitations sent successfully!';
-      emails.value = [''];
+      success.value = "Invitations sent successfully!";
+      emails.value = [""];
     } else {
-      error.value = result.message || 'Failed to send invitations';
+      error.value = result.message || "Failed to send invitations";
     }
   } catch (e) {
-    error.value = 'An error occurred while sending invitations';
+    error.value = "An error occurred while sending invitations";
   } finally {
     loading.value = false;
   }
@@ -68,7 +68,10 @@ const handleSubmit = async () => {
 <template>
   <div class="max-w-3xl mx-auto px-4 py-8">
     <div class="mb-8">
-      <button @click="router.push('/')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
+      <button
+        @click="router.push('/')"
+        class="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+      >
         Back to Home
       </button>
     </div>
@@ -118,7 +121,7 @@ const handleSubmit = async () => {
             class="px-6 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors disabled:bg-blue-300"
             :disabled="loading"
           >
-            {{ loading ? 'Sending...' : 'Send Invitations' }}
+            {{ loading ? "Sending..." : "Send Invitations" }}
           </button>
         </div>
       </form>
