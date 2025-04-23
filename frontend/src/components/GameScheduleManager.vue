@@ -1,38 +1,62 @@
 <script setup>
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { store } from '../store/data';
-import { createSchedule, addGameToSchedule } from '../services/gameSchedule';
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import {
+  createSchedule,
+  addGameToSchedule,
+  getGames,
+} from "../services/gameSchedule";
 
 const router = useRouter();
 const showScheduleForm = ref(false);
 const showGameForm = ref(false);
 const selectedSchedule = ref(null);
 const scheduleFormData = ref({
-  sport: '',
-  season: ''
+  sport: "",
+  season: "",
 });
 const gameFormData = ref({
-  gameDate: '',
-  gameStart: '',
-  venue: '',
-  opponent: '',
-  isFinalized: false
+  gameDate: "",
+  gameStart: "",
+  venue: "",
+  opponent: "",
+  isFinalized: false,
 });
-const error = ref('');
-const success = ref('');
+const error = ref("");
+const success = ref("");
 const loading = ref(false);
+const schedules = ref([]);
 
-// Use computed property to access schedules from store
-const schedules = computed(() => store.schedules || []);
+// Load schedules from API
+const loadSchedules = async () => {
+  try {
+    loading.value = true;
+    const response = await getGames();
+    if (response.flag) {
+      schedules.value = response.data;
+    } else {
+      error.value = response.message || "Failed to load schedules";
+    }
+  } catch (e) {
+    error.value = "An error occurred while loading schedules";
+    console.error(e);
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Load schedules when component mounts
+onMounted(() => {
+  loadSchedules();
+});
 
 const openScheduleForm = () => {
   showScheduleForm.value = true;
   scheduleFormData.value = {
-    sport: '',
-    season: ''
+    sport: "",
+    season: "",
   };
-  error.value = '';
+  error.value = "";
 };
 
 const closeScheduleForm = () => {
@@ -43,13 +67,13 @@ const openGameForm = (schedule) => {
   selectedSchedule.value = schedule;
   showGameForm.value = true;
   gameFormData.value = {
-    gameDate: '',
-    gameStart: '',
-    venue: '',
-    opponent: '',
-    isFinalized: false
+    gameDate: "",
+    gameStart: "",
+    venue: "",
+    opponent: "",
+    isFinalized: false,
   };
-  error.value = '';
+  error.value = "";
 };
 
 const closeGameForm = () => {
@@ -63,25 +87,27 @@ const scheduleCrew = (game) => {
 
 const handleScheduleCreate = async () => {
   try {
-    error.value = '';
-    success.value = '';
+    error.value = "";
+    success.value = "";
     loading.value = true;
 
     if (!scheduleFormData.value.sport || !scheduleFormData.value.season) {
-      error.value = 'Please fill in all required fields';
+      error.value = "Please fill in all required fields";
       return;
     }
 
     const response = await createSchedule(scheduleFormData.value);
 
     if (response.flag) {
-      success.value = 'Schedule created successfully!';
+      success.value = "Schedule created successfully!";
       closeScheduleForm();
+      // Reload schedules after creating a new one
+      await loadSchedules();
     } else {
-      error.value = response.message || 'Failed to create schedule';
+      error.value = response.message || "Failed to create schedule";
     }
   } catch (e) {
-    error.value = 'An error occurred while creating the schedule';
+    error.value = "An error occurred while creating the schedule";
     console.error(e);
   } finally {
     loading.value = false;
@@ -90,30 +116,30 @@ const handleScheduleCreate = async () => {
 
 const addGame = async () => {
   try {
-    error.value = '';
-    success.value = '';
+    error.value = "";
+    success.value = "";
     loading.value = true;
 
     if (!selectedSchedule.value) {
-      error.value = 'No schedule selected';
+      error.value = "No schedule selected";
       return;
     }
 
-    const response = await addGameToSchedule(selectedSchedule.value.id, gameFormData.value);
+    const response = await addGameToSchedule(
+      selectedSchedule.value.id,
+      gameFormData.value
+    );
 
     if (response.flag) {
-      // Update the local schedule's games array
-      const schedule = schedules.value.find(s => s.id === selectedSchedule.value.id);
-      if (schedule) {
-        schedule.games.push(response.data);
-      }
-      success.value = 'Game added successfully!';
+      success.value = "Game added successfully!";
       closeGameForm();
+      // Reload schedules after adding a game
+      await loadSchedules();
     } else {
-      error.value = response.message || 'Failed to add game';
+      error.value = response.message || "Failed to add game";
     }
   } catch (e) {
-    error.value = 'An error occurred while adding the game';
+    error.value = "An error occurred while adding the game";
     console.error(e);
   } finally {
     loading.value = false;
@@ -138,9 +164,12 @@ const addGame = async () => {
       <div v-if="schedules.length === 0" class="text-center py-8 text-gray-500">
         No schedules created yet.
       </div>
-      <div v-else v-for="schedule in schedules" 
-           :key="schedule.id"
-           class="bg-white rounded-lg shadow-md p-6">
+      <div
+        v-else
+        v-for="schedule in schedules"
+        :key="schedule.id"
+        class="bg-white rounded-lg shadow-md p-6"
+      >
         <div class="flex justify-between items-center mb-4">
           <div>
             <h2 class="text-xl font-semibold">{{ schedule.sport }}</h2>
@@ -153,18 +182,25 @@ const addGame = async () => {
             Add Games
           </button>
         </div>
-        
+
         <!-- Games List -->
-        <div v-if="schedule.games && schedule.games.length > 0" class="mt-4 space-y-3">
+        <div
+          v-if="schedule.games && schedule.games.length > 0"
+          class="mt-4 space-y-3"
+        >
           <h3 class="text-lg font-medium">Games</h3>
-          <div v-for="game in schedule.games" 
-               :key="game.gameId"
-               class="p-4 bg-slate-50 rounded-lg">
+          <div
+            v-for="game in schedule.games"
+            :key="game.gameId"
+            class="p-4 bg-slate-50 rounded-lg"
+          >
             <div class="flex justify-between items-center">
               <div>
                 <p class="font-medium">vs {{ game.opponent }}</p>
                 <div class="text-sm text-slate-600">
-                  <p>Date: {{ new Date(game.gameDate).toLocaleDateString() }}</p>
+                  <p>
+                    Date: {{ new Date(game.gameDate).toLocaleDateString() }}
+                  </p>
                   <p>Time: {{ game.gameStart }}</p>
                   <p>Venue: {{ game.venue }}</p>
                 </div>
@@ -176,9 +212,15 @@ const addGame = async () => {
                 >
                   Schedule Crew
                 </button>
-                <span class="px-3 py-1 text-sm rounded-full" 
-                      :class="game.isFinalized ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'">
-                  {{ game.isFinalized ? 'Finalized' : 'Pending' }}
+                <span
+                  class="px-3 py-1 text-sm rounded-full"
+                  :class="
+                    game.isFinalized
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-yellow-100 text-yellow-800'
+                  "
+                >
+                  {{ game.isFinalized ? "Finalized" : "Pending" }}
                 </span>
               </div>
             </div>
@@ -191,21 +233,29 @@ const addGame = async () => {
     </div>
 
     <!-- Create Schedule Modal -->
-    <div v-if="showScheduleForm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div
+      v-if="showScheduleForm"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+    >
       <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
         <h2 class="text-xl font-bold mb-6">Create New Schedule</h2>
-        
+
         <form @submit.prevent="handleScheduleCreate" class="space-y-6">
           <div v-if="error" class="p-4 bg-red-100 text-red-700 rounded-lg">
             {{ error }}
           </div>
-          <div v-if="success" class="p-4 bg-green-100 text-green-700 rounded-lg">
+          <div
+            v-if="success"
+            class="p-4 bg-green-100 text-green-700 rounded-lg"
+          >
             {{ success }}
           </div>
 
           <div class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Sport</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Sport</label
+              >
               <input
                 type="text"
                 v-model="scheduleFormData.sport"
@@ -215,7 +265,9 @@ const addGame = async () => {
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Season</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Season</label
+              >
               <input
                 type="text"
                 v-model="scheduleFormData.season"
@@ -240,7 +292,7 @@ const addGame = async () => {
               class="px-4 py-2 bg-slate-800 text-white hover:bg-slate-700 rounded-lg transition-colors"
               :disabled="loading"
             >
-              {{ loading ? 'Creating...' : 'Create Schedule' }}
+              {{ loading ? "Creating..." : "Create Schedule" }}
             </button>
           </div>
         </form>
@@ -248,21 +300,29 @@ const addGame = async () => {
     </div>
 
     <!-- Add Game Modal -->
-    <div v-if="showGameForm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div
+      v-if="showGameForm"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+    >
       <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
         <h2 class="text-xl font-bold mb-6">Add Game to Schedule</h2>
-        
+
         <form @submit.prevent="addGame" class="space-y-6">
           <div v-if="error" class="p-4 bg-red-100 text-red-700 rounded-lg">
             {{ error }}
           </div>
-          <div v-if="success" class="p-4 bg-green-100 text-green-700 rounded-lg">
+          <div
+            v-if="success"
+            class="p-4 bg-green-100 text-green-700 rounded-lg"
+          >
             {{ success }}
           </div>
 
           <div class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Game Date</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Game Date</label
+              >
               <input
                 type="date"
                 v-model="gameFormData.gameDate"
@@ -271,7 +331,9 @@ const addGame = async () => {
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Start Time</label
+              >
               <input
                 type="time"
                 v-model="gameFormData.gameStart"
@@ -280,7 +342,9 @@ const addGame = async () => {
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Venue</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Venue</label
+              >
               <input
                 type="text"
                 v-model="gameFormData.venue"
@@ -290,7 +354,9 @@ const addGame = async () => {
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Opponent</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1"
+                >Opponent</label
+              >
               <input
                 type="text"
                 v-model="gameFormData.opponent"
@@ -307,7 +373,9 @@ const addGame = async () => {
                 class="rounded border-gray-300 text-slate-600 focus:ring-slate-500"
                 :disabled="loading"
               />
-              <label for="isFinalized" class="text-sm font-medium text-gray-700">Finalize Game</label>
+              <label for="isFinalized" class="text-sm font-medium text-gray-700"
+                >Finalize Game</label
+              >
             </div>
           </div>
 
@@ -325,7 +393,7 @@ const addGame = async () => {
               class="px-4 py-2 bg-slate-800 text-white hover:bg-slate-700 rounded-lg transition-colors"
               :disabled="loading"
             >
-              {{ loading ? 'Adding...' : 'Add Game' }}
+              {{ loading ? "Adding..." : "Add Game" }}
             </button>
           </div>
         </form>

@@ -3,7 +3,7 @@ import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { getGames } from "../services/gameSchedule";
 import { submitAvailability } from "../services/availability";
-import crewData from "../../db.json";
+import { getCrewMember } from "../services/crewMember";
 
 const router = useRouter();
 const games = ref([]);
@@ -11,55 +11,55 @@ const error = ref("");
 const loading = ref(true);
 const showForm = ref(false);
 const formError = ref("");
-const currentUser = ref(crewData.currentUser);
-const showNotification = ref(false);
-const notificationMessage = ref("");
+const currentUser = ref(null);
 const formData = ref({
-  userId: currentUser.value.userId,
+  userId: null,
   gameId: null,
   availability: null,
   comment: "",
 });
 
-const isCrewMember = computed(() => currentUser.value.role === "CREW_MEMBER");
+const isCrewMember = computed(() => currentUser.value?.role === "CREW_MEMBER");
 
 const hasSubmittedAvailability = (gameId) => {
-  return crewData.availability?.some(
-    (a) => a.userId === currentUser.value.userId && a.gameId === gameId
-  );
+  // This will be updated when we have the correct availability endpoint
+  return false;
 };
 
 const getAvailabilityStatus = (gameId) => {
-  const availability = crewData.availability?.find(
-    (a) => a.userId === currentUser.value.userId && a.gameId === gameId
-  );
-
-  if (!availability) return null;
-  return availability.availability === 1 ? "Available" : "Unavailable";
+  // This will be updated when we have the correct availability endpoint
+  return null;
 };
 
-const showNotificationMessage = (message) => {
-  notificationMessage.value = message;
-  showNotification.value = true;
-  setTimeout(() => {
-    showNotification.value = false;
-  }, 3000);
-};
-
-onMounted(async () => {
+const loadData = async () => {
   try {
-    const response = await getGames();
-    if (response.flag) {
-      games.value = response.data;
+    loading.value = true;
+    const [gamesResponse, userResponse] = await Promise.all([
+      getGames(),
+      getCrewMember(),
+    ]);
+
+    if (gamesResponse.flag) {
+      games.value = gamesResponse.data;
     } else {
-      error.value = response.message;
+      error.value = gamesResponse.message;
+    }
+
+    if (userResponse.flag) {
+      currentUser.value = userResponse.data;
+      formData.value.userId = userResponse.data.userId;
+    } else {
+      error.value = userResponse.message;
     }
   } catch (e) {
-    error.value = "An error occurred while fetching the game schedule";
+    error.value = "An error occurred while loading data";
+    console.error(e);
   } finally {
     loading.value = false;
   }
-});
+};
+
+onMounted(loadData);
 
 const viewCrewList = (gameId) => {
   router.push(`/crew-list/${gameId}`);
@@ -85,8 +85,6 @@ const handleSubmit = async () => {
       return;
     }
 
-    showNotificationMessage("Sending POST request to /availability...");
-
     const response = await submitAvailability(formData.value);
 
     if (response.flag) {
@@ -97,11 +95,8 @@ const handleSubmit = async () => {
         availability: null,
         comment: "",
       };
-      // Refresh the games list to show updated availability
-      const gamesResponse = await getGames();
-      if (gamesResponse.flag) {
-        games.value = gamesResponse.data;
-      }
+      // Refresh the data to show updated availability
+      await loadData();
     } else {
       switch (response.code) {
         case 400:
@@ -128,14 +123,6 @@ const handleSubmit = async () => {
 
 <template>
   <div class="max-w-7xl mx-auto px-4 py-8">
-    <!-- Request Notification -->
-    <div
-      v-if="showNotification"
-      class="fixed top-4 right-4 bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg z-50"
-    >
-      {{ notificationMessage }}
-    </div>
-
     <div class="flex justify-between items-center mb-8">
       <h1 class="text-3xl font-bold text-gray-900">Game Schedule</h1>
     </div>
