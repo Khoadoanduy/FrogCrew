@@ -125,6 +125,15 @@ const addGame = async () => {
       return;
     }
 
+    if (
+      !gameFormData.value.gameDate ||
+      !gameFormData.value.venue ||
+      !gameFormData.value.opponent
+    ) {
+      error.value = "Please fill in all required fields";
+      return;
+    }
+
     const response = await addGameToSchedule(
       selectedSchedule.value.id,
       gameFormData.value
@@ -136,7 +145,15 @@ const addGame = async () => {
       // Reload schedules after adding a game
       await loadSchedules();
     } else {
-      error.value = response.message || "Failed to add game";
+      if (response.code === 400) {
+        // Handle validation errors
+        const validationErrors = Object.entries(response.data)
+          .map(([field, message]) => `${field}: ${message}`)
+          .join(", ");
+        error.value = validationErrors;
+      } else {
+        error.value = response.message || "Failed to add game";
+      }
     }
   } catch (e) {
     error.value = "An error occurred while adding the game";
@@ -328,6 +345,7 @@ const addGame = async () => {
                 v-model="gameFormData.gameDate"
                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500"
                 :disabled="loading"
+                required
               />
             </div>
             <div>
@@ -351,6 +369,7 @@ const addGame = async () => {
                 placeholder="Enter venue name"
                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500"
                 :disabled="loading"
+                required
               />
             </div>
             <div>
@@ -363,6 +382,7 @@ const addGame = async () => {
                 placeholder="Enter opponent name"
                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500"
                 :disabled="loading"
+                required
               />
             </div>
             <div class="flex items-center gap-2">

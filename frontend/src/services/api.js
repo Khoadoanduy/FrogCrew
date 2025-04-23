@@ -25,17 +25,41 @@ export const getAvailableCrewMembers = async (gameId, position) => {
 
 export const addCrewSchedule = async (gameId, assignments) => {
   try {
+    // Format assignments to match API specification
+    const formattedAssignments = assignments.map((assignment) => ({
+      crewedUserId: 0, // API will assign this
+      userId: assignment.userId,
+      gameId: assignment.gameId,
+      position: assignment.position,
+    }));
+
     const response = await axios.post(
       `${API_URL}/crewSchedule/${gameId}`,
-      assignments
+      formattedAssignments
     );
     return {
       flag: true,
       code: 200,
-      message: "Crew scheduled successfully",
+      message: "Add Success",
       data: response.data,
     };
   } catch (error) {
+    if (error.response?.status === 400) {
+      return {
+        flag: false,
+        code: 400,
+        message: "Provided arguments are invalid, see data for details.",
+        data: error.response.data,
+      };
+    }
+    if (error.response?.status === 404) {
+      return {
+        flag: false,
+        code: 404,
+        message: `Could not find game with id ${gameId}`,
+        data: null,
+      };
+    }
     return {
       flag: false,
       code: error.response?.status || 500,

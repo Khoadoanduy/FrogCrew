@@ -53,6 +53,22 @@ export const addGameToSchedule = async (scheduleId, gameData) => {
       data: response.data,
     };
   } catch (error) {
+    if (error.response?.status === 400) {
+      return {
+        flag: false,
+        code: 400,
+        message: "Provided arguments are invalid, see data for details.",
+        data: error.response.data,
+      };
+    }
+    if (error.response?.status === 404) {
+      return {
+        flag: false,
+        code: 404,
+        message: `Could not find schedule with id ${scheduleId}`,
+        data: null,
+      };
+    }
     return {
       flag: false,
       code: error.response?.status || 500,

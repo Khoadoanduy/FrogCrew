@@ -78,27 +78,37 @@ const updateQualifiedMembers = async () => {
   }
 };
 
-const handleSubmit = async () => {
+const validateCrewAssignment = () => {
+  if (!newCrewMember.value.userId) {
+    error.value = "Please select a crew member";
+    return false;
+  }
+  if (!newCrewMember.value.reportTime) {
+    error.value = "Please specify report time";
+    return false;
+  }
+  if (!newCrewMember.value.reportLocation) {
+    error.value = "Please specify report location";
+    return false;
+  }
+  return true;
+};
+
+const submitCrewAssignment = async () => {
+  if (!validateCrewAssignment()) {
+    return;
+  }
+
   try {
+    loading.value = true;
     error.value = "";
     success.value = "";
-    loading.value = true;
-
-    if (
-      !newCrewMember.value.userId ||
-      !selectedPosition.value ||
-      !newCrewMember.value.reportLocation
-    ) {
-      error.value =
-        "Please complete all crew member assignments including location";
-      return;
-    }
 
     const assignment = {
       userId: newCrewMember.value.userId,
       gameId: game.value.gameId,
       position: selectedPosition.value,
-      reportTime: newCrewMember.value.reportTime || "",
+      reportTime: newCrewMember.value.reportTime,
       reportLocation: newCrewMember.value.reportLocation,
     };
 
@@ -106,21 +116,16 @@ const handleSubmit = async () => {
 
     if (response.flag) {
       success.value = "Crew member assigned successfully!";
-
       // Reset form
-      selectedPosition.value = "";
-      qualifiedMembers.value = [];
       newCrewMember.value = {
         userId: null,
         reportTime: "",
         reportLocation: "",
       };
-      showAddForm.value = false;
-
-      // Reload game data to show updated crew list
-      await loadGame();
+      // Refresh available crew members
+      await updateQualifiedMembers();
     } else {
-      error.value = response.message;
+      error.value = response.message || "Failed to assign crew member";
     }
   } catch (e) {
     error.value = "An error occurred while assigning crew member";
@@ -222,7 +227,7 @@ onMounted(loadGame);
         <!-- Crew Member Form -->
         <form
           v-if="showAddForm"
-          @submit.prevent="handleSubmit"
+          @submit.prevent="submitCrewAssignment"
           class="space-y-6"
         >
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -2,7 +2,10 @@
 import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { getGames } from "../services/gameSchedule";
-import { submitAvailability } from "../services/availability";
+import {
+  submitAvailability as submitAvailabilityApi,
+  getAvailability,
+} from "../services/availability";
 import { getCrewMember } from "../services/crewMember";
 
 const router = useRouter();
@@ -12,6 +15,7 @@ const loading = ref(true);
 const showForm = ref(false);
 const formError = ref("");
 const currentUser = ref(null);
+const availabilityData = ref({});
 const formData = ref({
   userId: null,
   gameId: null,
@@ -22,13 +26,13 @@ const formData = ref({
 const isCrewMember = computed(() => currentUser.value?.role === "CREW_MEMBER");
 
 const hasSubmittedAvailability = (gameId) => {
-  // This will be updated when we have the correct availability endpoint
-  return false;
+  return availabilityData.value[gameId] !== undefined;
 };
 
 const getAvailabilityStatus = (gameId) => {
-  // This will be updated when we have the correct availability endpoint
-  return null;
+  const availability = availabilityData.value[gameId];
+  if (!availability) return null;
+  return availability.availability === 1 ? "Available" : "Unavailable";
 };
 
 const loadData = async () => {
@@ -48,6 +52,20 @@ const loadData = async () => {
     if (userResponse.flag) {
       currentUser.value = userResponse.data;
       formData.value.userId = userResponse.data.userId;
+
+      // Load availability data for each game
+      if (isCrewMember.value) {
+        const availabilityPromises = games.value.map((game) =>
+          getAvailability(userResponse.data.userId, game.gameId)
+        );
+        const availabilityResponses = await Promise.all(availabilityPromises);
+
+        availabilityResponses.forEach((response, index) => {
+          if (response.flag) {
+            availabilityData.value[games.value[index].gameId] = response.data;
+          }
+        });
+      }
     } else {
       error.value = userResponse.message;
     }
@@ -76,47 +94,44 @@ const openAvailabilityForm = (game) => {
   showForm.value = true;
 };
 
-const handleSubmit = async () => {
+const validateAvailabilityForm = () => {
+  if (!formData.value.availability) {
+    formError.value = "Please select your availability";
+    return false;
+  }
+  if (!formData.value.userId) {
+    formError.value = "User ID is required";
+    return false;
+  }
+  if (!formData.value.gameId) {
+    formError.value = "Game ID is required";
+    return false;
+  }
+  return true;
+};
+
+const submitAvailability = async () => {
+  if (!validateAvailabilityForm()) {
+    return;
+  }
+
   try {
+    loading.value = true;
     formError.value = "";
-
-    if (formData.value.availability === null) {
-      formError.value = "Please select your availability";
-      return;
-    }
-
-    const response = await submitAvailability(formData.value);
+    const response = await submitAvailabilityApi(formData.value);
 
     if (response.flag) {
+      // Update local availability data
+      availabilityData.value[formData.value.gameId] = response.data;
       showForm.value = false;
-      formData.value = {
-        userId: currentUser.value.userId,
-        gameId: null,
-        availability: null,
-        comment: "",
-      };
-      // Refresh the data to show updated availability
-      await loadData();
     } else {
-      switch (response.code) {
-        case 400:
-          formError.value = "Please fill in all required fields.";
-          break;
-        case 404:
-          formError.value = "Game or user not found.";
-          break;
-        case 409:
-          formError.value =
-            "You have already submitted availability for this game.";
-          break;
-        default:
-          formError.value =
-            response.message ||
-            "An error occurred while submitting availability.";
-      }
+      formError.value = response.message || "Failed to submit availability";
     }
   } catch (e) {
-    formError.value = "Failed to submit availability. Please try again.";
+    formError.value = "An error occurred while submitting availability";
+    console.error(e);
+  } finally {
+    loading.value = false;
   }
 };
 </script>
@@ -199,7 +214,7 @@ const handleSubmit = async () => {
     >
       <div class="bg-white rounded-lg p-8 max-w-lg w-full mx-4">
         <h2 class="text-2xl font-bold mb-6">Submit Availability</h2>
-        <form @submit.prevent="handleSubmit" class="space-y-6">
+        <form @submit.prevent="submitAvailability" class="space-y-6">
           <div v-if="formError" class="p-4 bg-red-100 text-red-700 rounded-lg">
             {{ formError }}
           </div>

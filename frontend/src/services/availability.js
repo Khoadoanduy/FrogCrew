@@ -2,10 +2,10 @@ import axios from "axios";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export const getAvailability = async (gameId, position) => {
+export const getAvailability = async (userId, gameId) => {
   try {
     const response = await axios.get(
-      `${API_URL}/CrewedUser/${gameId}/${position}`
+      `${API_URL}/availability/${userId}/${gameId}`
     );
     return {
       flag: true,
@@ -18,7 +18,7 @@ export const getAvailability = async (gameId, position) => {
       return {
         flag: false,
         code: 404,
-        message: `No matching crew members available for ${position}`,
+        message: "No availability found",
         data: null,
       };
     }
