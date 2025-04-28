@@ -192,58 +192,6 @@ const clearFilters = () => {
       {{ notificationMessage }}
     </div>
 
-    <!-- Invite Section -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-      <h2 class="text-2xl font-bold mb-6">Invite Crew Members</h2>
-
-      <form @submit.prevent="handleInvite" class="space-y-6">
-        <div v-if="error" class="p-4 bg-red-100 text-red-700 rounded-lg">
-          {{ error }}
-        </div>
-        <div v-if="success" class="p-4 bg-green-100 text-green-700 rounded-lg">
-          {{ success }}
-        </div>
-
-        <div class="space-y-4">
-          <div v-for="(email, index) in emails" :key="index" class="flex gap-2">
-            <input
-              type="email"
-              v-model="emails[index]"
-              placeholder="Enter email address"
-              class="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              :disabled="loading"
-            />
-            <button
-              type="button"
-              @click="removeEmailField(index)"
-              class="px-3 py-2 bg-red-100 text-red-600 hover:bg-red-200 rounded-lg transition-colors"
-              :disabled="emails.length === 1 || loading"
-            >
-              Remove
-            </button>
-          </div>
-        </div>
-
-        <div class="flex gap-4">
-          <button
-            type="button"
-            @click="addEmailField"
-            class="px-4 py-2 bg-primary-100 hover:bg-primary-200 rounded-lg transition-colors text-primary-900"
-            :disabled="loading"
-          >
-            Add Another Email
-          </button>
-          <button
-            type="submit"
-            class="px-6 py-2 bg-primary-800 text-white hover:bg-primary-700 rounded-lg transition-colors disabled:bg-primary-300"
-            :disabled="loading"
-          >
-            {{ loading ? "Sending..." : "Send Invitations" }}
-          </button>
-        </div>
-      </form>
-    </div>
-
     <!-- Crew Members List -->
     <div class="bg-white rounded-lg shadow-md p-6">
       <h2 class="text-2xl font-bold mb-6">Manage Crew Members</h2>
@@ -375,5 +323,56 @@ const clearFilters = () => {
         </div>
       </div>
     </div>
+  </div>
+  <!-- Invite Section -->
+  <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+    <h2 class="text-2xl font-bold mb-6">Invite Crew Members</h2>
+
+    <form @submit.prevent="handleInvite" class="space-y-6">
+      <div v-if="error" class="p-4 bg-red-100 text-red-700 rounded-lg">
+        {{ error }}
+      </div>
+      <div v-if="success" class="p-4 bg-green-100 text-green-700 rounded-lg">
+        {{ success }}
+      </div>
+
+      <div class="space-y-4">
+        <div v-for="(email, index) in emails" :key="index" class="flex gap-2">
+          <input
+            type="email"
+            v-model="emails[index]"
+            placeholder="Enter email address"
+            class="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            :disabled="loading"
+          />
+          <button
+            type="button"
+            @click="removeEmailField(index)"
+            class="px-3 py-2 bg-red-100 text-red-600 hover:bg-red-200 rounded-lg transition-colors"
+            :disabled="emails.length === 1 || loading"
+          >
+            Remove
+          </button>
+        </div>
+      </div>
+
+      <div class="flex gap-4">
+        <button
+          type="button"
+          @click="addEmailField"
+          class="px-4 py-2 bg-primary-100 hover:bg-primary-200 rounded-lg transition-colors text-primary-900"
+          :disabled="loading"
+        >
+          Add Another Email
+        </button>
+        <button
+          type="submit"
+          class="px-6 py-2 bg-primary-800 text-white hover:bg-primary-700 rounded-lg transition-colors disabled:bg-primary-300"
+          :disabled="loading"
+        >
+          {{ loading ? "Sending..." : "Send Invitations" }}
+        </button>
+      </div>
+    </form>
   </div>
 </template>
