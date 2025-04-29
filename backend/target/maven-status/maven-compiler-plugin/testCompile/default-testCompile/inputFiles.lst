@@ -1,0 +1,11 @@
+/Users/doankhoa/FrogCrew/backend/src/test/java/edu/tcu/cs/frogcrewbackend/FrogCrewBackendApplicationTests.java
+/Users/doankhoa/FrogCrew/backend/src/test/java/edu/tcu/cs/frogcrewbackend/availability/AvailabilityControllerTest.java
+/Users/doankhoa/FrogCrew/backend/src/test/java/edu/tcu/cs/frogcrewbackend/availability/AvailabilityServiceTest.java
+/Users/doankhoa/FrogCrew/backend/src/test/java/edu/tcu/cs/frogcrewbackend/crew/CrewListControllerTest.java
+/Users/doankhoa/FrogCrew/backend/src/test/java/edu/tcu/cs/frogcrewbackend/crew/CrewListServiceTest.java
+/Users/doankhoa/FrogCrew/backend/src/test/java/edu/tcu/cs/frogcrewbackend/crew/CrewedUserControllerTest.java
+/Users/doankhoa/FrogCrew/backend/src/test/java/edu/tcu/cs/frogcrewbackend/crew/CrewedUserServiceTest.java
+/Users/doankhoa/FrogCrew/backend/src/test/java/edu/tcu/cs/frogcrewbackend/game/GameScheduleControllerTest.java
+/Users/doankhoa/FrogCrew/backend/src/test/java/edu/tcu/cs/frogcrewbackend/game/GameScheduleServiceTest.java
+/Users/doankhoa/FrogCrew/backend/src/test/java/edu/tcu/cs/frogcrewbackend/member/UserControllerTest.java
+/Users/doankhoa/FrogCrew/backend/src/test/java/edu/tcu/cs/frogcrewbackend/member/UserServiceTest.java
